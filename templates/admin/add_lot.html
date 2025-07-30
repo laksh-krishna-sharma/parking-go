@@ -1,0 +1,17 @@
+{# admin/add_lot.html #}
+{% extends "base.html" %}
+{% block title %}Add Parking Lot{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header"><h4>Add Parking Lot</h4></div>
+    <div class="card-body">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">{{ form.name.label }} {{ form.name(class="form-control") }}</div>
+            <div class="mb-3">{{ form.location.label }} {{ form.location(class="form-control") }}</div>
+            <div class="mb-3">{{ form.total_spots.label }} {{ form.total_spots(class="form-control") }}</div>
+            <button type="submit" class="btn btn-primary">Add Lot</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

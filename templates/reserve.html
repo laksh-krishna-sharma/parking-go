@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Reserve Parking Spot{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header text-center">
+                <h3><i class="fas fa-car"></i> Reserve Parking Spot</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="reservationForm">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.lot_id.label(class="form-label") }}
+                        {{ form.lot_id(class="form-select", id="lot_id") }}
+                        {% if form.lot_id.errors %}
+                            <div class="text-danger">
+                                {% for error in form.lot_id.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.spot_id.label(class="form-label") }}
+                        {{ form.spot_id(class="form-select", id="spot_id") }}
+                        {% if form.spot_id.errors %}
+                            <div class="text-danger">
+                                {% for error in form.spot_id.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Available spots will load based on selected parking lot</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.vehicle_number.label(class="form-label") }}
+                        {{ form.vehicle_number(class="form-control", placeholder="e.g. ABC-1234") }}
+                        {% if form.vehicle_number.errors %}
+                            <div class="text-danger">
+                                {% for error in form.vehicle_number.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Pricing:</strong> $5 per hour (calculated upon checkout)
+                    </div>
+                    
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Available Lots Info -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Available Parking Lots</h5>
+            </div>
+            <div class="card-body">
+                {% if lots %}
+                    <div class="row">
+                        {% for lot in lots %}
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ lot.name }}</h6>
+                                        <p class="card-text">
+                                            <i class="fas fa-map-marker-alt"></i> {{ lot.location }}<br>
+                                            <i class="fas fa-square"></i> {{ lot.available_spots_count() }} / {{ lot.total_spots }} available
+                                        </p>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" role="progressbar" 
+                                                style="width: {{ ((lot.available_spots_count() / lot.total_spots * 100) if lot.total_spots else 0) | round(0) }}%">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-decoration">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                        <p>No parking lots available at the moment.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('lot_id').addEventListener('change', function() {
+    const lotId = this.value;
+    const spotSelect = document.getElementById('spot_id');
+    
+    // Clear current options
+    spotSelect.innerHTML = '<option value="">Loading...</option>';
+    
+    if (lotId) {
+        fetch(`/get_spots/${lotId}`)
+            .then(response => response.json())
+            .then(data => {
+                spotSelect.innerHTML = '';
+                
+                if (data.length === 0) {
+                    spotSelect.innerHTML = '<option value="">No available spots</option>';
+                } else {
+                    data.forEach(spot => {
+                        const option = document.createElement('option');
+                        option.value = spot.id;
+                        option.textContent = spot.number;
+                        spotSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                spotSelect.innerHTML = '<option value="">Error loading spots</option>';
+            });
+    }
+});
+</script>
+{% endblock %}

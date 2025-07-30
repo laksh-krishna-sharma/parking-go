@@ -1,0 +1,46 @@
+{# admin/manage_reservations.html #}
+{% extends "base.html" %}
+{% block title %}Manage Reservations{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header"><h4>Manage Reservations</h4></div>
+    <div class="card-body">
+        <table class="table table-bordered rounded overflow-hidden">
+            <thead>
+                <tr><th>ID</th><th>User</th><th>Lot</th><th>Spot</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+                <tbody>
+                    {% for res in reservations %}
+                    <tr>
+                        <td>{{ res.id }}</td>
+                        <td>{{ res.user.name }}</td>
+                        <td>{{ res.spot.lot.name }}</td>
+                        <td>{{ res.spot.spot_number }}</td>
+                        <td>
+                            {% if res.checkout_time %}
+                                <span class="badge bg-danger">Inactive</span>
+                            {% else %}
+                                <span class="badge bg-success">Active</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not res.checkout_time %}
+                                <a href="{{ url_for('cancel_reservation', res_id=res.id) }}" class="btn btn-danger btn-sm">Cancel</a>
+                            {% else %}
+                                <span class="text-decoration">Completed</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                {% if not reservations %}
+                <tfoot>
+                    <tr>
+                        <td colspan="6" class="text-center">No reservations found.</td>
+                    </tr>
+                </tfoot>
+                {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}

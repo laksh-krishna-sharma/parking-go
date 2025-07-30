@@ -1,0 +1,348 @@
+openapi: 3.0.3
+info:
+  title: Parking Management System
+  version: 1.0.0
+  description: A Flask-based parking management system supporting user and admin operations.
+
+servers:
+  - url: http://localhost:5000
+
+paths:
+  /:
+    get:
+      summary: Home page
+      tags: [Public]
+      responses:
+        "200":
+          description: Rendered home page with system stats.
+
+  /register:
+    post:
+      summary: Register new user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [name, email, password, phone, address]
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                phone:
+                  type: string
+                address:
+                  type: string
+      responses:
+        "302":
+          description: Redirect to login on success or back to register on failure.
+
+  /login:
+    post:
+      summary: Login user or admin
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "302":
+          description: Redirects to home or admin dashboard.
+
+  /logout:
+    get:
+      summary: Logout current user
+      tags: [Auth]
+      responses:
+        "302":
+          description: Redirect to home.
+
+  /reserve:
+    post:
+      summary: Reserve a parking spot
+      tags: [Reservation]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [lot_id, spot_id, vehicle_number]
+              properties:
+                lot_id:
+                  type: integer
+                spot_id:
+                  type: integer
+                vehicle_number:
+                  type: string
+      responses:
+        "302":
+          description: Redirect to reservation detail or error page.
+
+  /get_spots/{lot_id}:
+    get:
+      summary: Get available spots in a parking lot
+      tags: [Reservation]
+      parameters:
+        - name: lot_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of available spots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    number:
+                      type: string
+
+  /my-reservation:
+    get:
+      summary: Get user's active reservation
+      tags: [Reservation]
+      responses:
+        "200":
+          description: Render reservation detail HTML.
+
+  /checkout/{reservation_id}:
+    post:
+      summary: Checkout from an active reservation
+      tags: [Reservation]
+      parameters:
+        - name: reservation_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "302":
+          description: Redirect to reservation history.
+
+  /reservation-history:
+    get:
+      summary: List all past reservations for the current user
+      tags: [Reservation]
+      responses:
+        "200":
+          description: Render reservation history HTML.
+
+  /admin/dashboard:
+    get:
+      summary: Admin dashboard overview
+      tags: [Admin]
+      responses:
+        "200":
+          description: Render admin dashboard with stats.
+
+  /admin/add-lot:
+    post:
+      summary: Add a new parking lot
+      tags: [Admin]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [name, location, total_spots]
+              properties:
+                name:
+                  type: string
+                location:
+                  type: string
+                total_spots:
+                  type: integer
+      responses:
+        "302":
+          description: Redirect to manage lots.
+
+  /admin/edit-lot/{lot_id}:
+    post:
+      summary: Edit an existing lot
+      tags: [Admin]
+      parameters:
+        - name: lot_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [name, location, total_spots]
+              properties:
+                name:
+                  type: string
+                location:
+                  type: string
+                total_spots:
+                  type: integer
+      responses:
+        "302":
+          description: Redirect to manage lots.
+
+  /admin/lots:
+    get:
+      summary: List all parking lots
+      tags: [Admin]
+      responses:
+        "200":
+          description: Render parking lot management page.
+
+  /admin/lot/{lot_id}:
+    get:
+      summary: View details of a parking lot
+      tags: [Admin]
+      parameters:
+        - name: lot_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Render lot details with spots.
+
+  /admin/reservations:
+    get:
+      summary: View all reservations (paginated)
+      tags: [Admin]
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Render reservation management view.
+
+  /admin/reservation/{res_id}/cancel:
+    get:
+      summary: Cancel a reservation
+      tags: [Admin]
+      parameters:
+        - name: res_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "302":
+          description: Redirect to reservations list.
+
+  /admin/users:
+    get:
+      summary: List all non-admin users
+      tags: [Admin]
+      responses:
+        "200":
+          description: Render user management view.
+
+  /admin/user/{user_id}/delete:
+    get:
+      summary: Delete a user and their reservations
+      tags: [Admin]
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "302":
+          description: Redirect to user list.
+
+  /admin/delete-lot/{lot_id}:
+    post:
+      summary: Delete a parking lot if no active spots
+      tags: [Admin]
+      parameters:
+        - name: lot_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "302":
+          description: Redirect to manage lots.
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        is_admin:
+          type: boolean
+
+    ParkingLot:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        location:
+          type: string
+        total_spots:
+          type: integer
+
+    ParkingSpot:
+      type: object
+      properties:
+        id:
+          type: integer
+        spot_number:
+          type: string
+        is_occupied:
+          type: boolean
+
+    Reservation:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        spot_id:
+          type: integer
+        vehicle_number:
+          type: string
+        checkin_time:
+          type: string
+          format: date-time
+        checkout_time:
+          type: string
+          format: date-time

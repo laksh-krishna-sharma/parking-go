@@ -1,0 +1,15 @@
+{# admin/view_lot_details.html #}
+{% extends "base.html" %}
+{% block title %}View Lot Details{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header"><h4>Parking Lot: {{ lot.name }}</h4></div>
+    <div class="card-body">
+        <p><strong>Location:</strong> {{ lot.location }}</p>
+        <p><strong>Total Spots:</strong> {{ lot.total_spots }}</p>
+        <p><strong>Available:</strong> {{ lot.available_spots }}</p>
+        <p><strong>Occupied:</strong> {{ lot.occupied_spots }}</p>
+        <a href="{{ url_for('manage_lots') }}" class="btn btn-secondary">Back</a>
+    </div>
+</div>
+{% endblock %}

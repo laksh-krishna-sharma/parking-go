@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Parking Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <h1 class="display-4 mb-4">
+                    <i class="fas fa-parking text-primary"></i>
+                    Welcome to Smart Parking
+                </h1>
+                
+                {% if user_name %}
+                    <h3 class="text-decoration mb-4">Hello, {{ user_name }}!</h3>
+                    
+                    {% if is_admin %}
+                        <p class="lead">Welcome to the Admin Dashboard</p>
+                        <div class="d-grid gap-2 d-md-block">
+                            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                            </a>
+                        </div>
+                    {% else %}
+                        <p class="lead">Find and reserve your parking spot easily</p>
+                        <div class="d-grid gap-2 d-md-block">
+                            <a href="{{ url_for('reserve_spot') }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-car"></i> Reserve a Spot
+                            </a>
+                            <a href="{{ url_for('my_reservation') }}" class="btn btn-outline-primary btn-lg">
+                                <i class="fas fa-ticket-alt"></i> My Reservation
+                            </a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <p class="lead">Your smart parking solution</p>
+                    <div class="d-grid gap-2 d-md-block">
+                        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-user-plus"></i> Get Started
+                        </a>
+                        <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mt-4">
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-building fa-2x text-primary mb-3"></i>
+                <h4>{{ total_lots }}</h4>
+                <p class="text-decoration">Parking Lots</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-square fa-2x text-info mb-3"></i>
+                <h4>{{ total_spots }}</h4>
+                <p class="text-decoration">Total Spots</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-2x text-success mb-3"></i>
+                <h4>{{ available_spots }}</h4>
+                <p class="text-decoration">Available</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-car fa-2x text-danger mb-3"></i>
+                <h4>{{ occupied_spots }}</h4>
+                <p class="text-decoration">Occupied</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
